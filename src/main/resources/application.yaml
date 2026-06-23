@@ -37,3 +37,15 @@ springdoc:
     version: openapi_3_1
   swagger-ui:
     path: /swagger-ui.html
+
+logging:
+  level:
+    root: INFO
+    com.aquariux.trading: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+    org.flywaydb: WARN
+    com.zaxxer.hikari: WARN
+    feign: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%thread] %logger{36} - %msg%n"

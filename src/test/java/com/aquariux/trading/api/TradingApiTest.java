@@ -1,6 +1,8 @@
 package com.aquariux.trading.api;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -18,9 +20,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest(properties = "app.pricing.scheduling-enabled=false")
 @AutoConfigureMockMvc
 @Transactional
+@ExtendWith(OutputCaptureExtension.class)
 class TradingApiTest {
 
     @Autowired
@@ -137,6 +143,28 @@ class TradingApiTest {
                 .andExpect(jsonPath("$.error").value("Bad Request"))
                 .andExpect(jsonPath("$.message", notNullValue()))
                 .andExpect(jsonPath("$.path").value("/api/trades"));
+    }
+
+    @Test
+    void badRequestLogMessageIsSanitizedWithoutChangingResponse(CapturedOutput output) throws Exception {
+        String tailMarker = "TAIL_MARKER";
+        String pair = "BTC\\nUSDT" + "X".repeat(220) + tailMarker;
+
+        mockMvc.perform(post("/api/trades")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "pair": "%s",
+                                  "side": "BUY",
+                                  "quantity": 1
+                                }
+                """.formatted(pair)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString(tailMarker)));
+
+        assertThat(output)
+                .contains("Bad request path=/api/trades status=400 message=Unsupported pair: BTC?USDT")
+                .doesNotContain(tailMarker);
     }
 
     private void executeTrade(String pair, String side, String quantity) throws Exception {

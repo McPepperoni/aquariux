@@ -21,13 +21,17 @@ import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest(properties = "app.pricing.scheduling-enabled=false")
 @Transactional
+@ExtendWith(OutputCaptureExtension.class)
 class TradeServiceTest {
 
     @Autowired
@@ -46,7 +50,7 @@ class TradeServiceTest {
     private TradeTransactionRepository tradeTransactionRepository;
 
     @Test
-    void buyDebitsUsdtAtAskPriceAndCreditsBaseCurrency() {
+    void buyDebitsUsdtAtAskPriceAndCreditsBaseCurrency(CapturedOutput output) {
         savePrice(TradingPair.BTCUSDT, "29999.00", "30000.00");
 
         TradeResponse response = tradeService.execute(request("BTCUSDT", TradeSide.BUY, "0.5"));
@@ -65,6 +69,14 @@ class TradeServiceTest {
         assertThat(trade.getSide()).isEqualTo(TradeSide.BUY);
         assertThat(trade.getPrice()).isEqualByComparingTo("30000.00");
         assertThat(trade.getQuoteAmount()).isEqualByComparingTo("15000.000");
+        assertThat(output)
+                .contains("Trade executed")
+                .contains("id=" + response.getId())
+                .contains("pair=BTCUSDT")
+                .contains("side=BUY")
+                .contains("quantity=0.5")
+                .contains("price=30000.00")
+                .contains("quoteAmount=15000.000");
     }
 
     @Test

@@ -7,11 +7,13 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PriceAggregationService {
 
     private static final List<TradingPair> SUPPORTED_PAIRS = List.of(TradingPair.BTCUSDT, TradingPair.ETHUSDT);
@@ -29,6 +31,7 @@ public class PriceAggregationService {
                     .filter(price -> price.pair() == pair)
                     .toList();
             if (pairPrices.isEmpty()) {
+                log.warn("No exchange prices available for pair={}", pair);
                 continue;
             }
 
@@ -47,6 +50,14 @@ public class PriceAggregationService {
                     .askSource(bestAsk.source())
                     .fetchedAt(fetchedAt)
                     .build());
+            log.info(
+                    "Aggregated price persisted pair={} bidPrice={} bidSource={} askPrice={} askSource={} fetchedAt={}",
+                    pair,
+                    bestBid.bidPrice(),
+                    bestBid.source(),
+                    bestAsk.askPrice(),
+                    bestAsk.source(),
+                    fetchedAt);
         }
     }
 }

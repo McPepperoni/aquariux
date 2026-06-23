@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 class FeignExchangePriceClient implements ExchangePriceClient {
 
     private static final String BINANCE = "BINANCE";
@@ -31,9 +33,11 @@ class FeignExchangePriceClient implements ExchangePriceClient {
         try {
             tickers = binancePriceClient.getBookTickers();
         } catch (RuntimeException exception) {
+            log.warn("Failed to fetch {} prices: {}", BINANCE, exception.toString());
             return List.of();
         }
         if (tickers == null) {
+            log.warn("Failed to fetch {} prices: response was null", BINANCE);
             return List.of();
         }
 
@@ -49,6 +53,7 @@ class FeignExchangePriceClient implements ExchangePriceClient {
                     .askPrice(ticker.askPrice())
                     .build()));
         }
+        log.debug("Fetched {} supported {} prices", prices.size(), BINANCE);
         return prices;
     }
 
@@ -57,9 +62,11 @@ class FeignExchangePriceClient implements ExchangePriceClient {
         try {
             response = huobiPriceClient.getTickers();
         } catch (RuntimeException exception) {
+            log.warn("Failed to fetch {} prices: {}", HUOBI, exception.toString());
             return List.of();
         }
         if (response == null || response.data() == null) {
+            log.warn("Failed to fetch {} prices: response was null", HUOBI);
             return List.of();
         }
 
@@ -75,6 +82,7 @@ class FeignExchangePriceClient implements ExchangePriceClient {
                     .askPrice(ticker.ask())
                     .build()));
         }
+        log.debug("Fetched {} supported {} prices", prices.size(), HUOBI);
         return prices;
     }
 

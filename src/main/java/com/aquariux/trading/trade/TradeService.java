@@ -16,11 +16,13 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TradeService {
 
     private static final String DEMO_USERNAME = "demo";
@@ -75,6 +77,14 @@ public class TradeService {
                 .quoteCurrency(quoteCurrency)
                 .createdAt(createdAt)
                 .build());
+        log.info(
+                "Trade executed id={} pair={} side={} quantity={} price={} quoteAmount={}",
+                trade.getId(),
+                trade.getPair(),
+                trade.getSide(),
+                trade.getQuantity(),
+                trade.getPrice(),
+                trade.getQuoteAmount());
 
         return TradeResponse.builder()
                 .id(trade.getId())

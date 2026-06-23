@@ -6,7 +6,11 @@ import com.aquariux.trading.domain.TradingPair;
 import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 
+@ExtendWith(OutputCaptureExtension.class)
 class FeignExchangePriceClientTest {
 
     @Test
@@ -31,7 +35,7 @@ class FeignExchangePriceClientTest {
     }
 
     @Test
-    void returnsAvailableExchangePricesWhenOneExchangeFails() {
+    void returnsAvailableExchangePricesWhenOneExchangeFails(CapturedOutput output) {
         BinancePriceClient binanceClient = () -> {
             throw new IllegalStateException("binance down");
         };
@@ -43,6 +47,7 @@ class FeignExchangePriceClientTest {
 
         assertThat(prices).hasSize(1);
         assertPrice(prices, "HUOBI", TradingPair.BTCUSDT, "30001.20", "30003.20");
+        assertThat(output).contains("Failed to fetch BINANCE prices");
     }
 
     @Test
