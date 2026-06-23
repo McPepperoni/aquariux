@@ -82,6 +82,18 @@ Get trade history:
 curl http://localhost:8080/api/trades
 ```
 
+OpenAPI JSON:
+
+```bash
+curl http://localhost:8080/v3/api-docs
+```
+
+Swagger UI:
+
+```text
+http://localhost:8080/swagger-ui.html
+```
+
 ## Notes
 
 - Authentication is assumed and not implemented.
