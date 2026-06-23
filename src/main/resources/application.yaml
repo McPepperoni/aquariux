@@ -21,3 +21,9 @@ spring:
     console:
       enabled: true
       path: /h2-console
+
+app:
+  price-refresh-ms: 10000
+  exchanges:
+    binance-url: https://api.binance.com
+    huobi-url: https://api.huobi.pro

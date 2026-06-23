@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,8 @@ import lombok.Setter;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "trade_transactions")
 public class TradeTransaction {
@@ -70,28 +73,6 @@ public class TradeTransaction {
     @Column(name = "created_at", nullable = false)
     @Setter
     private Instant createdAt;
-
-    @Builder
-    public TradeTransaction(
-            UserAccount user,
-            TradingPair pair,
-            TradeSide side,
-            BigDecimal quantity,
-            BigDecimal price,
-            BigDecimal quoteAmount,
-            Currency baseCurrency,
-            Currency quoteCurrency,
-            Instant createdAt) {
-        this.user = user;
-        this.pair = pair;
-        this.side = side;
-        this.quantity = quantity;
-        this.price = price;
-        this.quoteAmount = quoteAmount;
-        this.baseCurrency = baseCurrency;
-        this.quoteCurrency = quoteCurrency;
-        this.createdAt = createdAt;
-    }
 
     @PrePersist
     void setCreatedAtIfMissing() {

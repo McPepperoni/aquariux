@@ -12,6 +12,7 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,8 @@ import lombok.Setter;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "aggregated_prices")
 public class AggregatedPrice {
@@ -51,22 +54,6 @@ public class AggregatedPrice {
     @Column(name = "fetched_at", nullable = false)
     @Setter
     private Instant fetchedAt;
-
-    @Builder
-    public AggregatedPrice(
-            TradingPair pair,
-            BigDecimal bidPrice,
-            String bidSource,
-            BigDecimal askPrice,
-            String askSource,
-            Instant fetchedAt) {
-        this.pair = pair;
-        this.bidPrice = bidPrice;
-        this.bidSource = bidSource;
-        this.askPrice = askPrice;
-        this.askSource = askSource;
-        this.fetchedAt = fetchedAt;
-    }
 
     @PrePersist
     void setFetchedAtIfMissing() {

@@ -53,7 +53,12 @@ class PriceAggregationServiceTest {
     }
 
     private static ExchangePrice price(String source, TradingPair pair, String bid, String ask) {
-        return new ExchangePrice(source, pair, new BigDecimal(bid), new BigDecimal(ask));
+        return ExchangePrice.builder()
+                .source(source)
+                .pair(pair)
+                .bidPrice(new BigDecimal(bid))
+                .askPrice(new BigDecimal(ask))
+                .build();
     }
 
     private static void assertAggregated(
