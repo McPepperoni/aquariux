@@ -21,7 +21,7 @@
 - Create `src/main/java/com/aquariux/trading/pricing/*.java`: exchange client, scheduler, and aggregation logic.
 - Create `src/main/java/com/aquariux/trading/trade/*.java`: trade service and DTOs.
 - Create `src/main/java/com/aquariux/trading/api/*.java`: REST controllers and exception handler.
-- Create `src/main/resources/application.yaml`: H2, Flyway, and JPA validation config.
+- Create `src/main/resources/application.yaml`: H2, Flyway, JPA validation, and Feign client URL config.
 - Create `src/test/java/com/aquariux/trading/**/*.java`: focused unit and integration tests.
 - Update `README.md`: setup, endpoints, and test instructions.
 
