@@ -15,15 +15,18 @@ import com.aquariux.trading.repository.AggregatedPriceRepository;
 import com.aquariux.trading.repository.TradeTransactionRepository;
 import com.aquariux.trading.repository.UserAccountRepository;
 import com.aquariux.trading.repository.WalletBalanceRepository;
+import jakarta.persistence.LockModeType;
 import java.math.BigDecimal;
+import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
+@SpringBootTest(properties = "app.pricing.scheduling-enabled=false")
 @Transactional
 class TradeServiceTest {
 
@@ -134,6 +137,14 @@ class TradeServiceTest {
         assertThatThrownBy(() -> tradeService.execute(request("BTCUSDT", TradeSide.BUY, "0")))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("Quantity must be positive");
+    }
+
+    @Test
+    void walletRowsAreLockedBeforeBalanceChanges() throws NoSuchMethodException {
+        Method method = WalletBalanceRepository.class.getMethod(
+                "findByUserAndCurrencyForUpdate", UserAccount.class, Currency.class);
+
+        assertThat(method.getAnnotation(Lock.class).value()).isEqualTo(LockModeType.PESSIMISTIC_WRITE);
     }
 
     private TradeRequest request(String pair, TradeSide side, String quantity) {

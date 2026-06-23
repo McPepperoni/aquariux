@@ -115,7 +115,7 @@ public class TradeService {
     }
 
     private WalletBalance wallet(UserAccount user, Currency currency) {
-        return walletBalanceRepository.findByUserAndCurrency(user, currency)
+        return walletBalanceRepository.findByUserAndCurrencyForUpdate(user, currency)
                 .orElseThrow(() -> new BadRequestException("Wallet balance not found for " + currency));
     }
 

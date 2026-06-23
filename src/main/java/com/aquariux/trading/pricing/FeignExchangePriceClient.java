@@ -27,13 +27,21 @@ class FeignExchangePriceClient implements ExchangePriceClient {
     }
 
     private List<ExchangePrice> fetchBinance() {
-        List<BinancePriceClient.Ticker> tickers = binancePriceClient.getBookTickers();
+        List<BinancePriceClient.Ticker> tickers;
+        try {
+            tickers = binancePriceClient.getBookTickers();
+        } catch (RuntimeException exception) {
+            return List.of();
+        }
         if (tickers == null) {
             return List.of();
         }
 
         List<ExchangePrice> prices = new ArrayList<>();
         for (BinancePriceClient.Ticker ticker : tickers) {
+            if (!hasPrice(ticker.bidPrice(), ticker.askPrice())) {
+                continue;
+            }
             supportedPair(ticker.symbol()).ifPresent(pair -> prices.add(ExchangePrice.builder()
                     .source(BINANCE)
                     .pair(pair)
@@ -45,13 +53,21 @@ class FeignExchangePriceClient implements ExchangePriceClient {
     }
 
     private List<ExchangePrice> fetchHuobi() {
-        HuobiPriceClient.Response response = huobiPriceClient.getTickers();
+        HuobiPriceClient.Response response;
+        try {
+            response = huobiPriceClient.getTickers();
+        } catch (RuntimeException exception) {
+            return List.of();
+        }
         if (response == null || response.data() == null) {
             return List.of();
         }
 
         List<ExchangePrice> prices = new ArrayList<>();
         for (HuobiPriceClient.Ticker ticker : response.data()) {
+            if (!hasPrice(ticker.bid(), ticker.ask())) {
+                continue;
+            }
             supportedPair(ticker.symbol()).ifPresent(pair -> prices.add(ExchangePrice.builder()
                     .source(HUOBI)
                     .pair(pair)
@@ -72,5 +88,9 @@ class FeignExchangePriceClient implements ExchangePriceClient {
             case "ETHUSDT" -> Optional.of(TradingPair.ETHUSDT);
             default -> Optional.empty();
         };
+    }
+
+    private static boolean hasPrice(Object bid, Object ask) {
+        return bid != null && ask != null;
     }
 }

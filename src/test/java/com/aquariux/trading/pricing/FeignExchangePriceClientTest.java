@@ -30,6 +30,36 @@ class FeignExchangePriceClientTest {
         assertPrice(prices, "HUOBI", TradingPair.ETHUSDT, "1999.90", "2000.90");
     }
 
+    @Test
+    void returnsAvailableExchangePricesWhenOneExchangeFails() {
+        BinancePriceClient binanceClient = () -> {
+            throw new IllegalStateException("binance down");
+        };
+        HuobiPriceClient huobiClient = () -> new HuobiPriceClient.Response(List.of(
+                new HuobiPriceClient.Ticker("btcusdt", new BigDecimal("30001.20"), new BigDecimal("30003.20"))));
+        FeignExchangePriceClient client = new FeignExchangePriceClient(binanceClient, huobiClient);
+
+        List<ExchangePrice> prices = client.fetchPrices();
+
+        assertThat(prices).hasSize(1);
+        assertPrice(prices, "HUOBI", TradingPair.BTCUSDT, "30001.20", "30003.20");
+    }
+
+    @Test
+    void ignoresSupportedTickersWithMissingBidOrAsk() {
+        BinancePriceClient binanceClient = () -> List.of(
+                new BinancePriceClient.Ticker("BTCUSDT", null, new BigDecimal("30002.10")),
+                new BinancePriceClient.Ticker("ETHUSDT", new BigDecimal("2000.40"), null));
+        HuobiPriceClient huobiClient = () -> new HuobiPriceClient.Response(List.of(
+                new HuobiPriceClient.Ticker("btcusdt", new BigDecimal("30001.20"), new BigDecimal("30003.20"))));
+        FeignExchangePriceClient client = new FeignExchangePriceClient(binanceClient, huobiClient);
+
+        List<ExchangePrice> prices = client.fetchPrices();
+
+        assertThat(prices).hasSize(1);
+        assertPrice(prices, "HUOBI", TradingPair.BTCUSDT, "30001.20", "30003.20");
+    }
+
     private static void assertPrice(
             List<ExchangePrice> prices,
             String source,
