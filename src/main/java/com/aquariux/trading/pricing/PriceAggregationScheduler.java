@@ -10,9 +10,7 @@ class PriceAggregationScheduler {
 
     private final PriceAggregationService priceAggregationService;
 
-    @Scheduled(
-            fixedRateString = "${app.price-refresh-ms:10000}",
-            initialDelayString = "${app.price-refresh-ms:10000}")
+    @Scheduled(fixedRate = 10_000, initialDelay = 10_000)
     void refreshPrices() {
         priceAggregationService.aggregatePrices();
     }

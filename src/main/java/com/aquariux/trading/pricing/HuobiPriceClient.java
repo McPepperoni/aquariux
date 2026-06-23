@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@FeignClient(name = "huobiPriceClient", url = "${app.exchanges.huobi-url:https://api.huobi.pro}")
+@FeignClient(name = "huobiPriceClient", url = "https://api.huobi.pro")
 interface HuobiPriceClient {
 
     @GetMapping("/market/tickers")
