@@ -2,9 +2,9 @@
 
 ## Context
 
-This repository started as a take-home skeleton with only `README.md` and an existing `initial commit`. The app will be built directly in the current repo with Maven, Java 17, Spring Boot 3.5.x, Spring Web, Spring Data JPA, Bean Validation, and in-memory H2.
+This repository started as a take-home skeleton with only `README.md` and an existing `initial commit`. The app will be built directly in the current repo with Maven, Java 17, Spring Boot 3.5.x, Spring Web, Spring Data JPA, Flyway, Lombok, Bean Validation, and in-memory H2.
 
-Spring Boot documentation was checked through Context7. The design uses standard `@RestController`, Spring Data JPA repositories, H2 datasource properties, and `@EnableScheduling` with `@Scheduled`.
+Spring Boot, Flyway, and Lombok documentation were checked through Context7. The design uses standard `@RestController`, Spring Data JPA repositories, H2 datasource settings in `application.yaml`, Flyway SQL migrations under `db/migration`, and `@EnableScheduling` with `@Scheduled`.
 
 ## Approach Options
 
@@ -12,7 +12,7 @@ Spring Boot documentation was checked through Context7. The design uses standard
 2. Plain JDBC repositories. Fewer abstractions, but more mapping code and less useful for a Spring Boot take-home.
 3. Ledger-style wallet accounting. More finance-grade, but overbuilt for a single-user assignment with simple balance APIs.
 
-The implementation will use option 1 and keep wallet balances as current balance rows, with trade rows as the audit trail.
+The implementation will use option 1 and keep wallet balances as current balance rows, with trade rows as the audit trail. Flyway, not Hibernate schema generation, owns table creation and seed data. Lombok is used to reduce simple Java boilerplate on entities and DTOs.
 
 ## Assumptions
 
